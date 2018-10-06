@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace TripTrackerBackServers
 {
@@ -25,12 +26,26 @@ namespace TripTrackerBackServers
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<Models.Repository>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            services.AddSwaggerGen(options => 
+            options.SwaggerDoc("v1", new Info { Title = " Trip Tracker", Version = "V0.1" })
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+
+            app.UseSwagger();
+            if (env.IsDevelopment() || env.IsStaging())
+            {
+
+                app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "Trip Tracker V0.1")
+                );
+            }
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
